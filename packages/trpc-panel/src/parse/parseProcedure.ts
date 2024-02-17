@@ -1,23 +1,23 @@
 import {
-  Procedure,
-  isQueryDef,
-  isMutationDef,
-  isSubscriptionDef,
-} from "./routerType";
-import {
   JSON7SchemaType,
   ProcedureType,
   TrpcPanelExtraOptions,
 } from "./parseRouter";
-
-import { AnyZodObject, z } from "zod";
-import { zodSelectorFunction } from "./input-mappers/zod/selector";
 import {
+  Procedure,
+  isMutationDef,
+  isQueryDef,
+  isSubscriptionDef,
+} from "./routerType";
+
+import {
+  AddDataFunctions,
   ParseReferences,
   ParsedInputNode,
-  AddDataFunctions,
 } from "@src/parse/parseNodeTypes";
+import { AnyZodObject, z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
+import { zodSelectorFunction } from "./input-mappers/zod/selector";
 
 export type ProcedureExtraData = {
   parameterDescriptions: { [path: string]: string };
@@ -121,13 +121,14 @@ export function parseProcedure(
     return null;
   }
 
-  const t = (() => {
-    if (isQueryDef(_def)) return "query";
-    if (isMutationDef(_def)) return "mutation";
-    if (isSubscriptionDef(_def)) return "subscription";
-    return null;
-  })();
-
+  const t = isQueryDef(_def) 
+    ? "query" 
+    : isMutationDef(_def) 
+    ? "mutation" 
+    : isSubscriptionDef(_def) 
+    ? "subscription" 
+    : (_def as any).type || null;
+    
   if (!t) {
     return null;
   }

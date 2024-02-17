@@ -1,6 +1,6 @@
 {
   "name": "trpc-panel",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "description": "UI for testing tRPC backends",
   "main": "lib/index.js",
   "module": "lib/index.mjs",

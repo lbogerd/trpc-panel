@@ -77,7 +77,16 @@ const RouterSchema = z.object({
 });
 
 export function isRouter(obj: unknown): obj is Router {
-  return RouterSchema.safeParse(obj).success;
+  let success = RouterSchema.safeParse(obj).success
+
+  if (!success) {
+    // this is not exhaustive, but hopefully it's good enough
+    // due to error handling in the rest of the code
+    // honestly this is basically a very bad hack
+    success = isV11Procedure(obj) === false;
+  }
+
+  return success;
 }
 
 const ProcedureSchema = z.object({
@@ -87,8 +96,17 @@ const ProcedureSchema = z.object({
 export type Procedure = z.infer<typeof ProcedureSchema>;
 
 export function isProcedure(obj: unknown | Function): obj is Procedure {
-  if (typeof obj !== "function" || !("_def" in obj)) return false;
-  return ProcedureDefSchema.safeParse((obj as any)._def).success;
+  let success = (typeof obj !== "function" || !("_def" in obj)) && ProcedureSchema.safeParse(obj).success;
+
+  if(!success) {
+    success = isV11Procedure(obj);
+  }
+
+  return success;
+}
+
+export function isV11Procedure(obj: unknown): boolean {
+  return (obj as any)?._def?.procedure !== undefined;
 }
 
 const QuerySchema = z.object({
